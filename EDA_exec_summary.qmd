@@ -1,0 +1,28 @@
+---
+title: "Final Project Executive Summary"
+subtitle: "Data Science 1 with R (STAT 301-1)"
+author: "Yaelle Pierre"
+date: "12/04/2022"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    code-fold: true
+    link-external-newwindow: true
+    
+execute:
+  warning: false
+  message: false
+  
+from: markdown+emoji 
+---
+## Introduction 
+
+The data we will be using is the 'Levels_Fyi_Salary_Data.csv' that was obtained from the dataset finder kaggle.com. 
+
+This dataset contains 62,642 records from top companies. There are 29 variables in this data set including company, level, title, location, race, gender, and etc. The reason I choose this data is because I am interested in data science, and the different jobs and variations of that within the tech field. Data Science is my major, and my primary contender for what I want to do as a career. I am interested in the salary that a data scientist gets, and the differences between the variations of job titles- especially data scientist vs software engineering. As a black woman, I am also interested in how race and gender factors into this field. I know that there is often a disparity in pay in terms of gender, so I wonder if the data shows that in this field. I am also interested in seeing how education level may impact the salary as well.
+
+## Conclusion 
+
+The median total compensation within each job title doesn't very much not as much as expected. The minimums in each job title are relatively the same, however the maximums are different. There are more outliers in total compensation as the median in the different job titles total compensation decreases. The median total compensation for that managers make significantly more than the other job titles, with software engineer managers making the most. There isn't a significant disparity in pay between technical and non-technical jobs as the median pay in sales and product designers are more than those for data scientist and software engineers. Woman make up more of the proportion of people in non-technical roles such as, human resources, recruiter, marketing, and product designers, while Men make up more of the proportion in technical roles like the engineering and data science roles. This can be seen by how woman make up more than 50 percent of the total workers in human resources, recruiting, marketing, and product designing, while men make up more than 75 percent of all of the engineering and more technical roles. More than half of the population in engineering or data science roles are made up of people from Asian descent, while Whites make up more than 25 percent in those roles. Blacks make up the least amount of people in engineering/data science oriented roles, consisting of less than 5% of the total population. Netflix is the highest paying company for both data scientist and software engineering. Lyft is the second highest paying in both, while Uber, Google, Apple, Airbnb, and Linkden are a few examples of the highest paying companies in both. They pay around $250,000K, although Netflix pays around 450K. Minorities excluding Asians have the least amount of years in their company, with woman on average having less years at the company compared to their male counterparts in their given race/gender. This could be seen as there being more representation and minorities breaking into these roles. Woman make up more of the proportion of people in non-technical roles such as, human resources, recruiter, marketing, and product designers, while Men make up more of the proportion in technical roles like the engineering and data science roles. In regards to high school education, only the job data scientist and software engineering allow those as their highest form of education for the job qualification. What is even more surprising is that the median salary for those with only some college in software engineering is more than those that have earned a bachelors degree. The lowest total compensation is also greater for those that have only some college experience than all the others with higher degrees. However, it is important to make the distinction that none of the other engineering roles allow for those that haven't attained a higher degree. Those with a PhD did have higher medians than those with lower degrees,however, interestingly enough when looking at mechanical engineers, the 75th percentile with those that have a masters is greater almost everyone in the data set that had a PhD in that field. Therefore, although education does impact the type of jobs you are able to do within these job titles, the difference is marginal in terms of minimum pay. It only seems as if there is a significant difference when it comes to the maximum compensation given and the education level. When answering How does total compensation compare Between genders in terms of Job Title?, I saw that the medians between gender are also usually close, although men are higher when they aren't close in all cases disregarding data scientist and mechanical engineers, except for in the case of software engineer managers, where the median seems to be almost exactly on top of each other. The maximum pay is also higher for men than they are for women.

@@ -1,0 +1,65 @@
+---
+title: "Final Project Check-Up Data Memo"
+subtitle: "Data Science 1 with R (STAT 301-1)"
+author: "Yaelle Pierre"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    code-fold: true
+    link-external-newwindow: true
+    
+execute:
+  warning: false
+  message: false
+  
+from: markdown+emoji 
+---
+
+## Data Memo
+
+The goal of this file is to state and describe the dataset of my choosing for the final project in the first quarter of the data science sequence in R.
+
+## Data Source
+
+### Data citation 
+The data we will be using is the 'Levels_Fyi_Salary_Data.csv' that was obtained from the dataset finder kaggle.com. The link to the data can be found below.
+
+### Link to dataset
+[Levels_Fyi_Salary_Data](https://www.kaggle.com/datasets/jackogozaly/data-science-and-stem-salaries?resource=download)
+
+### Importing/loading data
+
+```{r}
+library(tidyverse)
+library(readr)
+library(skimr)
+library(stringr)
+
+data_science_jobs <- read_csv("Levels_Fyi_Salary_data.csv")
+
+```
+## Checking data
+
+### Skimming data
+
+```{r}
+
+data_science_jobs %>%
+  skim()
+```
+There seems to be quiet a few missing data in race, tag, gender, education, and etc. This makes me feel as if this could've come from a survey that didn't make certain variables a requirement to fill out. I may need to disregard these in my analysis. Although there is quiet a few missing points, there is still around 30,000 - 40,000 observations in most of the variables so I think in the long term stating a correlation and analyzing it will be able to be facilitated. 
+
+### Looking into levels
+I want to look more into the levels and see how many different groups we may have in the dataset
+```{r}
+data_science_jobs %>%
+  group_by(level) %>%
+  count(sort = TRUE)
+
+```
+There seems to be some companies that have a designated system for qualitatively identifying the "level" at the company. For instance the repetitive "GGS" "GCB" and "IC" characters before a number. There seems to be slight differences in how some people wrote these in. For instance most people capitalize "IC" but a few kept it all lowercase. I may have to convert them and do some cleaning to properly be able to analyze the data. I may also want to remove spaces in some of the entries, as well as non-alphabetical characters too. This variable may take a lot of cleaning, and the decision to form analysis on it or even frankly just take it out, may be in order.
+
+## Assessment of Progress
+I think I am on track in terms of having had identified some cleaning/analysis that could be done within the dataset. Although an R script isn't being handed in, many notes about possible cleaning/analysis have been made to further look into. I am satisfied by my progress, and have made plans for how I am going to go about with the possible things I need to explore. The levels variable seems to be a big cluster of issues, and I may want to leave cleaning that for one of the last steps with my analysis, as there is analysis that can occur with lots of the other variables. I have discovered how difficult it may be to find answers to specific problems online, such as what exact function can be used to do certain things, and how much time cleaning can take. 

@@ -1,0 +1,390 @@
+---
+title: "Final Project Long Form EDA"
+subtitle: "Data Science 1 with R (STAT 301-1)"
+author: "Yaelle Pierre"
+date: "12/04/2022"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    code-fold: true
+    link-external-newwindow: true
+    
+execute:
+  warning: false
+  message: false
+  
+from: markdown+emoji 
+---
+
+# Loading Data and Packages
+
+```{r}
+#| label: Libraries
+
+library(tidyverse)
+library(readr)
+library(skimr)
+library(stringr)
+library(dbplyr)
+
+#| label: Reading Dataset
+data_jobs_cleaned <- read_csv("Data/Processed/data_jobs_cleaned.csv")
+```
+
+# Introduction
+
+The data we will be using is the 'Levels_Fyi_Salary_Data.csv' that was obtained from the dataset finder kaggle.com. The link to the data can be found below.
+
+[Levels_Fyi_Salary_Data](https://www.kaggle.com/datasets/jackogozaly/data-science-and-stem-salaries?resource=download)
+
+This dataset contains 62,642 records from top companies. There are 29 variables in this data set including company, level, title, location, race, gender, and etc. The reason I choose this data is because I am interested in data science, and the different jobs and variations of that within the tech field. Data Science is my major, and my primary contender for what I want to do as a career. I am interested in the salary that a data scientist gets, and the differences between the variations of job titles- especially data scientist vs software engineering. As a black woman, I am also interested in how race and gender factors into this field. I know that there is often a disparity in pay in terms of gender, so I wonder if the data shows that in this field. I am also interested in seeing how education level may impact the salary as well.
+
+# Data Processing
+
+I am concerned by the amount of missing data in this data set. It seems as if many of the questions that were asked weren't made necessary to input, causing a lot of missing data in Race, Education, and other variables. The NA values weren't taken out because they still provided valuable insight in other variables that were answered. Moreover, the levels section of the dataset is unusable unless I look at a distinct company because the system for it is specific to the company. When cleaning the data, I had to make all of the company names lowercase, and had to do extensive research on every company that was mentioned. This was because many people made mistakes in inputting the company that they work at, or they were specific in the subtype of company within their company, making it hard to compare. Therefore, I had to research every company mentioned and see if they are related to other companies mentioned. Multiple lines of code were used to make all the corrections, although there were some difficulties that I couldn't fix. I couldn't tell if some observations were referring to another company or it's own company. For example, 'aruba' and 'aruba networks'. It could be the same company, or two different ones, however upon research, there's no way of telling which one it is. Another example is 'Juniper'. 'Juniper' can be affiliated with 'juniper square' or 'juniper networks' but there is no definitive answer online. Moreover, the data set had some columns that aren't tidy, but then a column that contains the information in tidy format. For instance, there are multiple columns consisting of variables entered as 0 or 1. These are the race columns, such as 'race_asian' and 'race_black'. However, under the Race column, those individual observations are taken and inputted so that it is tidy. The same can be seen in the Education column, which is the tidy column of the individual education categories, ex- Highschool, masters degree, bachelors degree, some college, etc. The 'stockgrantvalue', 'basesalary', and 'bonus' columns are added up to create the 'totalyearlycompensation' column. 'cityid' and 'dmaid' were in regards to location, and weren't used in any of the questions below. 'Tag' and 'other details' were also excluded this analysis, because there were considered other details that weren't necessary to answer the questions I have.
+
+# Research Questions
+
+My analysis focuses on the relationship between the variables title, education, company, race, gender, and totalyearlycompensation, and yearsatcompany. I aim to answer these following questions:
+
+1.  Does the Job Title Impact Salary?
+
+2.  How is Gender Distributed in Different Tech Fields?
+
+3.  How is Race Distributed in Different Tech Fields?
+
+4.  What are the Best Companies for Software Engineers?
+
+5.  What are the Best Companies for Data Scientist?
+
+6.  Is There an Influx of Minorities in the Tech Field?
+
+7.  Does Education Impact the Salary in the Different Data Science and Engineering Based Jobs?
+
+8.  How does Total Compensation Compare Between Genders in terms of Job Title?
+
+# Data Exploration and Visualization
+
+I will be conducting multiple univariable, bivariable, and multivariable analysis' to answer the questions listed above. A mix of visualizations and analysis were conducted to answer the problems. The question of the generalizability of the data set is unable to be answered as the data collection process isn't fully known. The data comes from levels fyi, a company dedicated to collecting leveling and salary information, however people can contribute at their own discretion, although the data is then verified before being put on the sheet.
+
+## Univariable Analysis
+
+### Total Yearly Salary in STEM jobs
+
+The main variable that is being used to compare and answer the questions is the totalyearlycompensation variable in the data set. Therefore, a better understanding and look into the variable is in order.
+
+```{r}
+#| label: Univariable analysis of total yearly compensation 
+
+data_jobs_cleaned %>% 
+  skim_without_charts(totalyearlycompensation)
+```
+
+The mean pay for the jobs is \$216,300 with a standard deviation of \$138,033. The median pay is \$188,000, meaning that there is a lot of skew in the data. The lowest salary listed is \$10,000 while the highest is \$4,980,000.
+
+### Title of STEM jobs
+
+```{r}
+#| label: Different job titles in data set
+
+job_types <- data_jobs_cleaned %>%
+  group_by(title) %>%
+  arrange(title) %>%
+  count(sort = TRUE)
+
+print(job_types)
+
+ggplot(data_jobs_cleaned, aes(x = title)) +
+  geom_bar(fill = "#69b3a2") +
+  labs(
+    title = "Job Titles Distribution"
+  ) +
+  coord_flip()
+```
+
+There are 15 different job titles in the data set. Some jobs like business analyst aren't as technical as other jobs like software engineer. There are 41,231 software engineers and 2,578 data scientist in the data set. Some of the analysis will only focus on the different engineering and data scientist titles, as this is the main focus on the analysis. Manager positions may also be left out in certain title analysis to get a better understanding of titles in a similar level.
+
+### Gender Distribution in STEM jobs
+
+```{r}
+#| label: Proportion of Gender 
+
+gender <- data_jobs_cleaned %>%
+  filter(gender == 'male' | gender == 'female')
+
+gender_prop <- gender %>%
+  count(gender) %>%
+  mutate(proportions(n/sum(n)))
+
+print(gender_prop)
+
+ggplot(gender, aes(x = gender)) +
+  geom_bar(fill = "#69b3a2") +
+  labs(
+    title = "Male and Female Distribution"
+  )
+```
+
+There are 6,999 females in the data set and 35,702 males, meaning 16.4% of the data set is made up of females and 83.6% is made up on males. The NA and other values were filtered out to just compare the observations that were actually given. Because of the vast difference in the percentage of female to male observations shows that the field is predominantly made up of males. The analysis for the pay differences between woman and men may be skewed due to the significant difference in observations between the two.
+
+### Companies in Data Set
+
+```{r}
+#| label: Count of companies
+
+company_count <- data_jobs_cleaned %>%
+  group_by(company) %>%
+  arrange(company) %>%
+  count(sort = TRUE)
+
+print(company_count)
+```
+
+There are 1,011 listed companies in the data set. Many of the companies only have a few observations, so to make the analysis more concise, many of the analysis will be done on the companies with at least 100 observations. Because of the inability to differentiate certain companies, it may also be best to stick with those that have more than 100 observations, and not go too in depth with the analysis of companies.
+
+### Education distribution in STEM jobs
+
+```{r}
+#| label: Education Distribution
+
+education_prop <- data_jobs_cleaned %>%
+  count(Education) %>%
+  mutate(proportions(n/sum(n)))
+
+print(education_prop)
+
+ggplot(data_jobs_cleaned, aes(x = Education)) +
+  geom_bar(fill = "#69b3a2") +
+  labs(
+    title = "Education Distribution"
+  )
+```
+
+Of the data recorded, 24% have their highest form of education is a masters degree and 20% is a bachelor's degree. Only 2% have a PHD, 5% only have a high school degree, and 5% have some college. Half of the data didn't record their highest education level.
+
+### Race distribution in STEM jobs
+
+```{r}
+#| label: Race Distribution
+
+race_prop <- data_jobs_cleaned %>%
+  count(Race) %>%
+  mutate(proportions(n/sum(n)))
+
+print(race_prop)
+
+ggplot(data_jobs_cleaned, aes(x = Race)) +
+  geom_bar(fill = "#69b3a2") +
+  labs(
+    title = "Race Distribution"
+  )
+```
+
+Asians make up the greatest percentage of the Race in the data set excluding the NA values. They make up 18% of the total distribution, while as Whites, Hispanics, Blacks, and two or more races make up 12%, 1.8%, 1.1%, and 1.2% respectively. Due to the vast difference in the proportion of the races, as well as more than 64% of the observations not recording their race, the analysis we do with race may be impacted when applying it to other variables.
+
+## Bivariable Analysis
+
+### Does the Job Title Impact Salary?
+
+It may be obvious that a job title impacts salary, however I wonder if most of the salaries would be generally the same between job titles in the tech field, or if it will be significantly different. I want to explore how much difference the title makes in the amount of compensation provided.
+
+```{r}
+#| label: Job Title Vs Compensation
+
+ggplot(data = data_jobs_cleaned, mapping = aes(x = reorder(title, totalyearlycompensation, FUN = median), y = totalyearlycompensation)) + 
+  geom_boxplot() +
+  ylim(c(0,400000)) +
+  xlab(" Job Title") +
+  ylab("Total Yearly Compensation") +
+  labs(title = "Total Yearly Compensation within each Job Title") +
+  coord_flip() 
+  
+```
+
+The median compensation is relatively similar for many of the salaries above. I was not expecting more technical roles such as data scientist and software engineers to make a similar amount as those that work in marketing and human resources. Its also interesting that mechanical engineers make way less than the other engineers in the field, even lower than consultants and those in marketing do. Software engineer managers make the most money, with the other manager positions coming right after. The manager positions all make a significant amount more than the other job titles, but that is to be expected as managers are usually people that have the most years of experience, and the most years at the company. Median was used because it is the least impacted by skew, so it would also be interesting to go more in depth into the different results when using mean instead of median. The minimum compensation is relatively similar in all of the job titles, with the IQR also being similar.
+
+### How is Gender Distributed in Different Tech Fields?
+
+There are more men in the world than woman, and it is common knowledge that the STEM field is predominantly made up of men. I want to see how gender relates to the different job titles in these companies, and if the same claim can be made in the sample.
+
+```{r}
+#| label: Gender and Job Titles
+
+gender <- data_jobs_cleaned %>%
+  filter(gender == 'male' | gender == 'female')
+
+title_order <- gender %>%
+  count(title, gender) %>%
+  group_by(title) %>%
+  mutate(prop = n/sum(n)) %>%
+  ungroup() %>%
+  filter(gender == "male") %>%
+  arrange(prop) %>%
+  pull(title)
+
+
+ggplot(data = gender, mapping = aes(x = factor(title, levels = title_order), fill = gender)) + 
+  geom_bar(position = "fill") +
+  ylab("Proportion") +
+  xlab(" Job Title") +
+  labs(title = "Proportion of Gender within Job Title") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Woman make up more of the proportion of people in non-technical roles such as, human resources, recruiter, marketing, and product designers, while Men make up more of the proportion in technical roles like the engineering and data science roles. Moreover, the manager positions are also more populated with men, however that isn't necessarily be a shock either as they are more men in this field, and men are more often put in positions of power. Woman make up 75 percent of people in human resources, while men make up around 75 percent of data science jobs. The greatest disparity in proportion is in the field solution architect, where men make up around 90 percent of the total population there.
+
+### How is Race Distributed in Different Tech Fields?
+
+I have seen lots of articles and posts on the web about how minorities are breaking into the tech world, and increasing the representation in the field. I want to see what the racial break up is within engineering and data science roles. The reason for those jobs is because I consider them to be more technical, and I excluded managers because they usually have the most experience and years at the company, in which the break up may look different. If minorities are breaking into the tech field, they would most likely not be as much people in those jobs anyways. Moreover, It would be more difficult to see a graph made up of all the job titles, and I think it would be more meaningful to focus on certain job titles.
+
+```{r}
+#| label: Race and Job Title
+
+scientist_engineer <- data_jobs_cleaned %>%
+  filter(title == c('software engineer' , 'data scientist', 'mechanical engineer', 'hardware engineer'))
+
+title_order_race <- scientist_engineer %>%
+  count(title, Race) %>%
+  group_by(title) %>%
+  mutate(prop = n/sum(n)) %>%
+  ungroup() %>%
+  filter(Race == "asian") %>%
+  arrange(prop) %>%
+  pull(title)
+
+scientist_engineer %>%
+    filter(!is.na(Race)) %>%
+  ggplot() +
+  geom_bar(aes(x = factor(title, levels = title_order_race), fill = Race), position = "fill") +
+  ylab("Proportion") +
+  xlab("Job Title") +
+  labs(title = "Proportion of Race within Job Title") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Asians make up more than half of the population in all of the engineering and data science jobs in the data set, with people that are white being a close second. Blacks have the least representation in each of these fields, even compared Hispanics and those of two or more races. This variation is even significant compared to Hispanics and those of two or more races, as it seems as if in all the job titles aside from hardware engineers, they make up half as much.
+
+### What are the Best Companies for Software Engineers?
+
+I want to see how the median pay varies between companies for software engineering. I am more interested in software engineering and the flexibility in that role compared to many of the other job titles in terms of job responsibility and education level.
+
+```{r}
+#| label: Companies and Software Engineers
+
+companies_software <- data_jobs_cleaned %>%
+  filter(title == "software engineer") %>%
+  count(company, sort = TRUE) %>%
+  head(30)
+
+companies_software <- companies_software$company
+
+plot_software <- data_jobs_cleaned %>%
+  filter(title == "software engineer") %>%
+  filter(company %in% companies_software) %>%
+  group_by(company) %>%
+  summarise(median_comp = median(totalyearlycompensation)) 
+
+  ggplot(plot_software) +
+  geom_col(mapping = aes(x = reorder(company, median_comp), y= median_comp)) +
+    ylab("Median Compensation") +
+    xlab("Company") +
+    labs(title = "Median Compensation of Data Scienctist Salaries within each Comapny ") +
+  coord_flip()
+```
+
+Netflix seems to pay its data scientist the most out of all the other companies in the data set. They pay significantly more than the other top paying companies on the graph. The five highest paying companies for data scientist are Netflix, Lyft, Facebook, Twitter and Linkden. Lyft pays way more than Uber, which is interesting because they both do very similar things in terms of company niche. I wonder if the roles and responsibilities within each company are significantly different as well.
+
+### What are the Best Companies for Data Scientist?
+
+I want to see how the median pay varies between companies for data science. I am studying data science and want to know what the median pay is like in the top companies.
+
+```{r}
+#| label: Company and Data Science Compensation
+
+companies_data_science <- data_jobs_cleaned %>%
+    filter(title == "data scientist") %>%
+    count(company, sort = TRUE) %>%
+    head(30)
+  
+  companies_data_science <- companies_data_science$company
+  
+  plot_data_science <- data_jobs_cleaned %>%
+    filter(title == "data scientist") %>%
+    filter(company %in% companies_data_science) %>%
+    group_by(company) %>%
+    summarise(median_comp = median(totalyearlycompensation)) 
+  
+  ggplot(plot_data_science) +
+    geom_col(mapping = aes(x = reorder(company, median_comp), y= median_comp)) +
+    ylab("Median Compensation") +
+    xlab("Company") +
+    labs(title = "Median Compensation of Engineer Salaries within each Comapny ") +
+    coord_flip()
+```
+
+The highest paying companies for software engineers is similar to that of the highest paying companies for data scientist however there are a few distinctions. Netflix still pays significantly more than the other highest paying companies, however the top five highest paying companies here are Netflix, Lyft, Airbnb, Uber and Google respectively. Different job responsibilities and demands may be responsible for the difference in pay. Therefore, data scientist and software engineers can make significantly different salaries based of the company they are in, and what there title is within that company as well.
+
+## Multivariable Analysis
+
+### Is There an Influx of Minorities in the Tech Field?
+
+I have seen lots of articles and posts on the web about how minorities are breaking into the tech world, and increasing the representation in the field. I want to see if there is an actual influx of minorities in the tech field by comparing the years at their current company to their race and gender identity.
+
+```{r}
+#| label: Years at Company in Respect to Gender and Race 
+
+ggplot(data = gender) + 
+  geom_histogram(aes(x = yearsatcompany)) + 
+  ylim(c(0, 150)) +
+  labs(title = "The Years at Company in Different Race and Gender Groups") +
+  facet_wrap(Race ~ gender)
+
+```
+
+Black woman seem to have the least years at the company that they are in right now with other minority groups being the next in line. Woman in all of the different racial groups have less years at the company compared to their male counterparts. This seems to be the most significant in regards to Hispanic woman vs Hispanic men, and Asian woman vs Asian men. White men are still leading the years at the company, with Asian men being a close second. I wonder how this would be impacted if we new the races of the NA values in the graph. I wonder if a certain race is more/less likely to disclose their race in these types of surveys. The count for white woman and Asian woman are significantly higher in less years than the other groups. I wonder why Asians seem to be way more populated and involved in these jobs than other races, especially other minority groups. I have heard before that many companies outreach internationally to find people that work in these job titles because there isn't as many people in America doing this. However, that was something I was taught in school years ago, so I wonder how much truth there is to that, and if it still applies today.
+
+### Does Education Impact the Salary in the Different Data Science and Engineering Based Jobs?
+
+Higher education is usually associated with a higher salary. I want to see how truthful and significant the difference in total compensation depending on the highest level of education within each job title. I want to see if it is the same relationship in data science and engineering based jobs. The reason for these specific job titles is because it would be difficult to read a graph comparing all 15 jobs in the data set, and I want to see if more technical jobs show this relationship.
+
+```{r}
+#| label: Job Title and Total Yearly Compensation in Resepct to Education
+
+scientist_engineer <- data_jobs_cleaned %>%
+  filter(title == c('software engineer' , 'data scientist', 'mechanical engineer', 'hardware engineer'))
+
+ggplot(data = scientist_engineer, mapping = aes(x = title, y = totalyearlycompensation)) + 
+  geom_boxplot(aes(fill = Education)) +
+  ylim(c(0,400000)) +
+  ylab("Total Yearly Compensation") +
+  xlab("Job Title") +
+  labs(title = "The Total Yearly Compensation in Each Job Title in respect to Education") +
+  coord_flip() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Although it does seem that the level of education does play a part in the compensation given within specific engineering and data science job titles, it doesn't seem to always be the case within each job. In regards to high school education, only the job data scientist and software engineering allow those as their highest form of education for the job qualification.This seems to also be the case with people that only have some college, however with only a marginal amount of those with some college being able to have data science roles. This doesn't seem to be the case when discussing software engineers with only some college education, as there is a more noticeable amount of software engineers with only some college experience. What is even more surprising is that the median salary for those with only some college in software engineering is more than those that have earned a bachelors degree. The lowest total compensation is also greater for those that have only some college experience than all the others with higher degrees. I wonder if this could be due to more job experience, or tech savviness in those that only have some college experience. Maybe they focused more on gaining hands-on skills within the field, or focused more on learning different software languages online. However, it is important to make the distinction that none of the other engineering roles allow for those that haven't attained a higher degree. Those with a PhD did have higher medians than those with lower degrees, however, interestingly enough when looking at mechanical engineers, the 75th percentile with those that have a masters is greater almost everyone in the data set that had a PhD in that field. The IQR is still significantly larger though, showing a greater range in the pay within that sect of work.The minimum salaries for those with a bachelors and masters are not that different from one another, so it may not matter that much after all. Therefore, although education does impact the type of jobs you are able to do within these job titles, the difference is marginal in terms of minimum pay. It only seems as if there is a significant difference when it comes to the maximum compensation given and the education level.
+
+### How does Total Compensation Compare Between Genders in terms of Job Title?
+
+There are more men in the world than woman, and it is common knowledge that the STEM field is predominantly made up of men. I want to see how gender relates to the different job titles in these companies, and if the same claim can be made in the sample. There are many articles supporting and criticizing the idea that there is a wage gap, so I wanted to see if this could be supported with the sample.
+
+```{r}
+#| label: Job Title and Total Yearly Compensation in Respect to Gender
+
+ggplot(data = gender, mapping = aes(x = title, y = totalyearlycompensation)) + 
+  geom_boxplot(aes(fill = gender)) +
+  ylim(c(0,400000)) +
+  ylab("Total Yearly Compensation") +
+  xlab("Job Title") +
+  labs(title = "The Total Yearly Compensation in Each Job Title in respect to Gender") +
+  coord_flip()
+```
+
+The IQR for males is larger, and slightly higher in all of the Job titles, except in business analyst, where it is pretty much exactly the same. There also seems to be way more outliers in all the fields for the total compensation men have, than there is for woman. The medians between gender are also usually close, although men are higher when they aren't close in all cases disregarding data scientist and mechanical engineers, except for in the case of software engineer managers, where the median seems to be almost exactly on top of each other. The maximum pay is also higher for men than for woman. This could be due to other variables that weren't accounted for like higher attainment of more advanced degrees, or even years at the company. As we saw men did on average have more years at the company than woman, and it wouldn't be surprising if they also had more advanced degrees. Woman are more limited by societal standards and duties like pregnancy and home responsibilities, making it harder to go back to school and get more advanced degrees. More research into these variables could be done to get a better picture of why these trends are distributed in this manner.
+
+# Conclusion
+
+The median total compensation within each job title doesn't very much not as much as expected. The minimums in each job title are relatively the same, however the maximums are different. There are more outliers in total compensation as the median in the different job titles total compensation decreases. The median total compensation for that managers make significantly more than the other job titles, with software engineer managers making the most. There isn't a significant disparity in pay between technical and non-technical jobs as the median pay in sales and product designers are more than those for data scientist and software engineers. Woman make up more of the proportion of people in non-technical roles such as, human resources, recruiter, marketing, and product designers, while Men make up more of the proportion in technical roles like the engineering and data science roles. This can be seen by how woman make up more than 50 percent of the total workers in human resources, recruiting, marketing, and product designing, while men make up more than 75 percent of all of the engineering and more technical roles. More than half of the population in engineering or data science roles are made up of people from Asian descent, while Whites make up more than 25 percent in those roles. Blacks make up the least amount of people in engineering/data science oriented roles, consisting of less than 5% of the total population. Netflix is the highest paying company for both data scientist and software engineering. Lyft is the second highest paying in both, while Uber, Google, Apple, Airbnb, and Linkden are a few examples of the highest paying companies in both. They pay around \$250,000K, although Netflix pays around 450K. Minorities excluding Asians have the least amount of years in their company, with woman on average having less years at the company compared to their male counterparts in their given race/gender. This could be seen as there being more representation and minorities breaking into these roles. Woman make up more of the proportion of people in non-technical roles such as, human resources, recruiter, marketing, and product designers, while Men make up more of the proportion in technical roles like the engineering and data science roles. In regards to high school education, only the job data scientist and software engineering allow those as their highest form of education for the job qualification. What is even more surprising is that the median salary for those with only some college in software engineering is more than those that have earned a bachelors degree. The lowest total compensation is also greater for those that have only some college experience than all the others with higher degrees. However, it is important to make the distinction that none of the other engineering roles allow for those that haven't attained a higher degree. Those with a PhD did have higher medians than those with lower degrees,however, interestingly enough when looking at mechanical engineers, the 75th percentile with those that have a masters is greater almost everyone in the data set that had a PhD in that field. Therefore, although education does impact the type of jobs you are able to do within these job titles, the difference is marginal in terms of minimum pay. It only seems as if there is a significant difference when it comes to the maximum compensation given and the education level. When answering How does total compensation compare Between genders in terms of Job Title?, I saw that the medians between gender are also usually close, although men are higher when they aren't close in all cases disregarding data scientist and mechanical engineers, except for in the case of software engineer managers, where the median seems to be almost exactly on top of each other. The maximum pay is also higher for men than they are for women.
